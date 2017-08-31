@@ -1,0 +1,108 @@
+#!/bin/bash
+
+set -eu
+
+detect_preprocess() {
+  local image=$1
+  local version=$2
+  
+  case $image in
+    "ubuntu")
+      cat <<CMD
+apt-get update
+CMD
+      ;;
+  esac
+}
+
+detect_install_command() {
+  local image=$1
+  local version=$2
+  
+  case $image in
+    "ubuntu")
+      echo "apt-get install -y --no-install-recommends"
+      ;;
+  esac
+}
+
+detect_packages() {
+  local image=$1
+  local version=$2
+  local packages
+  
+  case $image in
+    "ubuntu")
+      cat <<CMD
+bash
+subversion
+autoconf
+bison
+build-essential
+libssl-dev
+libyaml-dev
+libreadline6-dev
+zlib1g-dev
+libncurses5-dev
+libffi-dev
+libgdbm3
+libgdbm-dev
+CMD
+      ;;
+  esac
+}
+
+detect_postprocess() {
+  local image=$1
+  local version=$2
+  
+  case $image in
+    "ubuntu")
+      cat <<CMD
+apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+CMD
+      ;;
+  esac
+}
+
+cd $(dirname $0)
+
+tag=$1
+image=$(echo $tag | cut -d: -f1)
+version=$(echo $tag | cut -d: -f2)
+
+preprocess=$(detect_preprocess $image $version)
+install_command=$(detect_install_command $image $version)
+packages=$(detect_packages $image $version)
+postprocess=$(detect_postprocess $image $version)
+
+cat <<MSG >&2
+Start build from $image:$version
+Build context: $(pwd)
+
+Preprocess:
+$preprocess
+
+Install command:
+$install_command
+
+Packages:
+$packages
+
+Postprocess:
+$postprocess
+
+MSG
+
+set -x
+
+docker build \
+  -t nownabe/rubygems-test:${image}${version} \
+  -f Dockerfile \
+  --build-arg "tag=$tag" \
+  --build-arg "preprocess=$preprocess" \
+  --build-arg "install_command=$install_command" \
+  --build-arg "packages=$packages" \
+  --build-arg "postprocess=$postprocess" \
+  .
