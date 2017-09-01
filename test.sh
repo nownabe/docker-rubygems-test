@@ -5,17 +5,7 @@ set -e
 fetch() {
 	local svn_path
 
-	if [[ "$svn_branch" = "trunk" ]]; then
-		svn_path="/trunk"
-	else if [[ "$svn_branch" != "" ]]; then
-		svn_path="/branches/$svn_branch"
-	else if [[ "$svn_tag" != "" ]]; then
-		svn_path="/tags/$svn_tag"
-	else
-		svn_path="/trunk"
-	fi
-
-	svn checkout --quiet $repo/$svn_path /ruby/build_source
+	svn checkout --quiet $RUBY_REPO/$RUBY_BRANCH /ruby/build_source
 }
 
 ruby_install() {
@@ -23,7 +13,7 @@ ruby_install() {
 	autoconf
 
 	cd /ruby/build
-	../source/configure \
+	../build_source/configure \
 		--prefix=/ruby/install \
 		--enable-shared
 
@@ -64,4 +54,3 @@ fi
 
 ruby_install
 install_gem $1 $2
-

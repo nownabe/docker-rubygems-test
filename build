@@ -47,6 +47,7 @@ libncurses5-dev
 libffi-dev
 libgdbm3
 libgdbm-dev
+ruby
 CMD
       ;;
   esac

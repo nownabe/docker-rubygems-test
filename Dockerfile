@@ -16,8 +16,7 @@ RUN \
 COPY test.sh /ruby/test.sh
 
 ENV RUBY_REPO "http://svn.ruby-lang.org/repos/ruby"
-ENV RUBY_SVN_BRANCH trunk
-ENV RUBY_SVN_TAG
+ENV RUBY_BRANCH trunk
 ENV TESTGEM activesupport
 ENV TESTGEM_VERSION ""
 
